@@ -2,8 +2,6 @@ import React from 'react'
 import splunkBg from '../img/splunk_bg.jpg'
 import './LoginScreen.scss'
 
-
-
 export default function LoginScreen() {
   return (
       <div className='login-screen'>
@@ -11,8 +9,8 @@ export default function LoginScreen() {
           {/* <div>LoginScreen</div> */}
           <div className='input-box'>
               <label>
-                <input type='radio' value="option1" checked={true}></input>
-                User
+                <input type='radio' value="option1" checked={true}name='role' />
+                  User
                 </label>
               
               
