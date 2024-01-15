@@ -27,14 +27,25 @@ const httpsAgent = new https.Agent({
 })
 
 const getHandler = async (url) => {
-    let reqUrl = baseURL + url;
-    axiosInstance.get(reqUrl, {httpsAgent, params})
-    .then(response => {
-        console.log(baseURL, "response for corresponding url", response && response.data);
-    })
-    .catch(error => {
-        console.error('Error:', error.message);
-    });
+  let reqUrl = baseURL + url;
+  try {
+      let getRes = await axiosInstance.get(reqUrl, { httpsAgent, params })
+    //   console.log("res in axios handler", getRes);
+      return getRes.data;
+  } catch (err) {
+      console.log("axios err",err);
+      return err;
+      
+  }
+    
+    //   .then(response => {
+    //     return response;
+    //     // console.log(baseURL, "response for corresponding url", response && response.data);
+    // })
+    // .catch(error => {
+    //   console.error('Error:', error.message);
+    //   return error;
+    // });
 }
 module.exports = { getHandler };
 
