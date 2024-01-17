@@ -3,7 +3,7 @@ import splunkBg from '../../img/splunk_bg.jpg'
 import './LoginScreen.scss'
 import { ROLE } from '../../constants/common-constants'
 import { useNavigate } from 'react-router-dom';
-import { PAGE_ROUTES } from '../../constants/route-constants';
+import  {PAGE_ROUTES} from '../../constants/route-constants';
 
 
 export default function LoginScreen(props) {
@@ -17,7 +17,6 @@ export default function LoginScreen(props) {
 
     const handleSigninClick = () => {
         navigate(PAGE_ROUTES.DASHBOARD)
-        
     }
 
     return ( 

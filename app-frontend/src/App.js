@@ -6,7 +6,7 @@ import {
     Routes,
     Route,
 } from "react-router-dom";
-import ROUTES from './constants/route-constants'; 
+import {PAGE_ROUTES} from './constants/route-constants'; 
 
 function App() {
 
@@ -21,7 +21,7 @@ function App() {
                 />
                 <Route
                     exact
-                    path={ROUTES.DASHBOARD}
+                    path={PAGE_ROUTES.DASHBOARD}
                     element={<Dashboard />}
                 />
                 {/* <Route

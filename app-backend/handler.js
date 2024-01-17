@@ -18,63 +18,71 @@ module.exports.getAlertActions = async (event) => {
         try {
         let tempRes = await getHandler('/servicesNS/-/-/alerts/alert_actions')
             // we need to feed this data into the database
-            connectToDatabase()
-                .then(() => {
-                    if (tempRes.entry && tempRes.entry.length > 0) {
-                        Alerts.insertMany(tempRes.entry.map((element) => {
-                            return {
-                                name: element.content.label,
-                                app: element.acl.app,
-                                author: element.author,
-                                owner: element.acl.owner,
-                                contentType: element.content.content_type,
-                                description: element.content.description,
-                                maxResults: element.content.maxresults,
-                                maxTime: element.content.maxtime,
-                                priority: element.content.priority,
-                                trackAlert: element.content.track_alert,
-                            }
-                        })).then(() => {
-                            console.log("Inserted into table");
-                            
-                        }).catch((err) => {
-                            throw err;
-                        })
-                    } else {
-                        console.log("zero length array in entry");
-                    }
-                }).catch((err) => {
+
+        if (tempRes.entry && tempRes.entry.length > 0) {
+            let alertsArr = tempRes.entry.map((element) => {
+                return {
+                    name: element.content.label,
+                    app: element.acl.app,
+                    author: element.author,
+                    owner: element.acl.owner,
+                    contentType: element.content.content_type,
+                    description: element.content.description,
+                    maxResults: element.content.maxresults,
+                    maxTime: element.content.maxtime,
+                    priority: element.content.priority,
+                    trackAlert: element.content.track_alert,
+                }
+            })
+
+            // console.log("alertsArr", alertsArr, alertsArr.length);
+            try {
+                await connectToDatabase();
+                try {
+                    await Alerts.insertMany(alertsArr);
                     return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            message: 'This is the list of AlertActions',
+                            data: alertsArr,
+                            statusCode: 200
+                        }),
+                    }
+                    
+                }catch(err){
+                    // throw err;
+                     return {
                         statusCode: 500,
                         body: JSON.stringify({
                             message: "Cannot create data in table AlertActions",
-                            status: 500,
+                            statusCode: 500,
                             error:err
                         })
                     }
-                    // throw err;
+                }
+            }catch(err) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        message: "Cannot create data in table AlertActions",
+                        statusCode: 500,
+                        error:err
+                    })
+                }
+                // throw err;
+            }   
+        } else {
+            console.log("zero length array in entry");
+        }}
+        catch (err) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: "Error in fetching details from the server",
+                    statusCode:500
                 })
-        return {
-            statusCode: 200,
-            body: JSON.stringify(
-            {
-                message: 'This is the list of AlertActions  ',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            }),
             }
         }
-        catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-            message: "Error in fetching details from the server",
-            statusCode:500
-            })
-        }
-        }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting AlertActions  ", err);
@@ -92,138 +100,142 @@ module.exports.getAlertActions = async (event) => {
 module.exports.getLookups = async (event) => {
     try {
         try {
-        let tempRes = await getHandler('/services/data/lookup-table-files')
-        // we need to feed this data into the database
-        connectToDatabase()
-        .then(() => {
+            let tempRes = await getHandler('/services/data/lookup-table-files')
+            // we need to feed this data into the database
+            
             if (tempRes.entry && tempRes.entry.length > 0) {
-                Lookups.insertMany(tempRes.entry.map((element) => {
+                let lookupsArr = tempRes.entry.map((element) => {
                     return {
                         name: element.content.label,
                         app: element.acl.app,
                         author: element.author,
-                        removable:element.acl.removable,
+                        removable: element.acl.removable,
                         owner: element.acl.owner,
                         modifiable: element.acl.modifiable,
                         sharing: element.acl.sharing,
-                        status: element.content.disabled? "Disabled" : "Enabled",
+                        status: element.content.disabled ? "Disabled" : "Enabled",
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
-            } else {
+                try {
+                    await connectToDatabase()
+                    try {
+                        await Lookups.insertMany(lookupsArr)
+                        console.log("Inserted into table");
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify(
+                                {
+                                    message: 'This is the list of Lookups  ',
+                                    input: event,
+                                    data: lookupsArr,
+                                    statusCode: 200
+                                },
+                            ),
+                        };
+                    } catch (err) {
+                        throw err;
+                    }
+                } catch (err) {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: "Cannot create data in table AlertActions",
+                            status: 500,
+                            error: err
+                        })
+                    }
+                    // throw err;
+                }
+            }
+            else {
                 console.log("zero length array in entry");
             }
-        }).catch((err) => {
+            
+        }
+        catch (err) {
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
-                })
-            }
-            // throw err;
-        })
-        return {
-            statusCode: 200,
-            body: JSON.stringify(
-            {
-                message: 'This is the list of Lookups  ',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            },
-            ),
-        };
-        } catch (err){
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: "Error in fetching details from the server",
-                statusCode:500
+                    message: "Error in fetching details from the server",
+                    statusCode: 500
                 })
             }
         }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting Lookups  ", err);
         return {
-        statusCode: 500,
-        body:
-            JSON.stringify({
-            statusCode:500,
-            message:"Internal server error occured while getting Lookups ."
-        })
+            statusCode: 500,
+            body: JSON.stringify({
+                statusCode: 500,
+                message: "Internal server error occured while getting Lookups ."
+            })
         }
     }
-};
+
+}
 
 module.exports.getFields = async (event) => {
     try {
         try {
-        let tempRes = await getHandler('/services/data/fields')
-        // we need to feed this data into the database
-
-            
-        connectToDatabase()
-        .then(() => {
+            let tempRes = await getHandler('/services/data/fields')
+            // we need to feed this data into the database
             if (tempRes.entry && tempRes.entry.length > 0) {
-                Fields.insertMany(tempRes.entry.map((element) => {
+                let fieldsArr = tempRes.entry.map((element) => {
                     return {
                         name: element.content.label,
                         app: element.acl.app,
                         author: element.author,
-                        removable:element.acl.removable,
+                        removable: element.acl.removable,
                         owner: element.acl.owner,
                         modifiable: element.acl.modifiable,
                         sharing: element.acl.sharing,
-                        status: element.content.disabled? "Disabled" : "Enabled",
+                        status: element.content.disabled ? "Disabled" : "Enabled",
                         indexed: element.content["INDEXED"],
-                        indexedvalue:element.content["INDEXED_VALUE"]
+                        indexedvalue: element.content["INDEXED_VALUE"]
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
-            } else {
+                try {
+                    await connectToDatabase()
+                    try {
+                        await Fields.insertMany(fieldsArr);
+                    
+                        console.log("Inserted into table");
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify(
+                                {
+                                    message: 'This is the list of Fields  ',
+                                    input: event,
+                                    data: fieldsArr,
+                                    statusCode: 200
+                                },
+                            ),
+                        };
+                    } catch (err) {
+                        return {
+                            statusCode: 500,
+                            body: JSON.stringify({
+                                message: "Cannot create data in table AlertActions",
+                                status: 500,
+                                error: err
+                            })
+                        }
+                    }
+                } catch (err) {
+                    throw err;
+                }
+            }else {
                 console.log("zero length array in entry");
             }
-        }).catch((err) => {
+        
+        }catch (err){
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
+                message: "Error in fetching details from the server",
+                statusCode:500
                 })
-            }
-            // throw err;
-        })
-        return {
-            statusCode: 200,
-            body: JSON.stringify(
-            {
-                message: 'This is the list of Fields  ',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            },
-            ),
-        };
-        } catch (err){
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-            message: "Error in fetching details from the server",
-            statusCode:500
-            })
             }
         }
 
@@ -244,12 +256,10 @@ module.exports.getFields = async (event) => {
 module.exports.getIndexes = async (event) => {
     try {
         try {
-        let tempRes = await getHandler('/services/data/indexes')
-        // we need to feed this data into the database
-        connectToDatabase()
-        .then(() => {
+            let tempRes = await getHandler('/services/data/indexes')
+            // we need to feed this data into the database   
             if (tempRes.entry && tempRes.entry.length > 0) {
-                Indexes.insertMany(tempRes.entry.map((element) => {
+                let indexesArr = tempRes.entry.map((element) => {
                     return {
                         name: element.name,
                         app: element.acl.app,
@@ -257,12 +267,12 @@ module.exports.getIndexes = async (event) => {
                         canList: element.acl.can_list,
                         bucketMerging: element.content.bucketMerging,
                         enableDataArchive: element.content["archiver.enableDataArchive"],
-                        assureUTF8:element.content.assureUTF8,
+                        assureUTF8: element.content.assureUTF8,
                         removable: element.acl.removable,
                         owner: element.acl.owner,
-                        modifiable :element.acl.modifiable,
-                        sharing:element.acl.sharing,
-                        status: element.content.disabled? "Disabled" : "Enabled",
+                        modifiable: element.acl.modifiable,
+                        sharing: element.acl.sharing,
+                        status: element.content.disabled ? "Disabled" : "Enabled",
                         coldPath: element.content.coldPath,
                         datatype: element.content.datatype,
                         enableRealtimeSearch: element.content.enableRealtimeSearch,
@@ -274,37 +284,44 @@ module.exports.getIndexes = async (event) => {
                         waitPeriodInSecsForManifestWrite: element.content.waitPeriodInSecsForManifestWrite,
 
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
+                try {
+                    await connectToDatabase()
+                    try {
+                        await Indexes.insertMany(indexesArr)
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                message: 'This is the list of Indexes  ',
+                                input: event,
+                                data: indexesArr,
+                                statusCode: 200
+                            }),
+                        }
+                    
+                    } catch (err) {
+                        return {
+                            statusCode: 500,
+                            body: JSON.stringify({
+                                message: "Cannot create data in table AlertActions",
+                                status: 500,
+                                error: err
+                            })
+                        }
+                    }
+                } catch (err) {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: "Error in fetching details from the server",
+                            statusCode: 500
+                        })
+                    }
+                }
             } else {
                 console.log("zero length array in entry");
             }
-        }).catch((err) => {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
-                })
-            }
-            // throw err;
-        })
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'This is the list of Indexes  ',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            },
-            ),
-        };
-        } catch (err){
+        } catch (err) {
             return {
                 statusCode: 500,
                 body: JSON.stringify({
@@ -313,7 +330,6 @@ module.exports.getIndexes = async (event) => {
                 })
             }
         }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting Indexes  ", err);
@@ -331,12 +347,10 @@ module.exports.getIndexes = async (event) => {
 module.exports.getSourceTypes = async (event) => {
     try {
         try {
-        let tempRes = await getHandler('/services/saved/sourcetypes')
-        // we need to feed this data into the database
-        connectToDatabase()
-        .then(() => {
+            let tempRes = await getHandler('/services/saved/sourcetypes')
+
             if (tempRes.entry && tempRes.entry.length > 0) {
-                SourceTypes.insertMany(tempRes.entry.map((element) => {
+                let sourceTypesArr = tempRes.entry.map((element) => {
                     return {
                         name: element.name,
                         app: element.acl.app,
@@ -353,35 +367,36 @@ module.exports.getSourceTypes = async (event) => {
                         indexdingExtractions: element.content["INDEXED_EXTRACTIONS"],
                         matchLimit:element.content["MATCH_LIMIT"],
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
-            } else {
+                try {
+                    await connectToDatabase()
+                    try {
+                        await SourceTypes.insertMany(sourceTypesArr)
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                message: 'This is the list of Sourcetypes',
+                                input: event,
+                                data: sourceTypesArr,
+                                statusCode: 200
+                            }),
+                        }
+                    } catch(err) {
+                        throw err;
+                    }
+
+                } catch(err) {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: "Cannot create data in table sourcetypes. db connection error",
+                            status: 500,
+                            error:err
+                        })
+                    }
+                }
+            }else {
                 console.log("zero length array in entry");
-            }
-        }).catch((err) => {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
-                })
-            }
-            // throw err;
-        })
-            
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'This is the list of Sourcetypes',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            }),
             }
         }
         catch (err) {
@@ -393,7 +408,6 @@ module.exports.getSourceTypes = async (event) => {
                 })
             }
         }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting Sourcetypes", err);
@@ -408,80 +422,84 @@ module.exports.getSourceTypes = async (event) => {
 };
 
 module.exports.getSavedSearches = async (event) => {
-  try {
     try {
-      let tempRes = await getHandler('/servicesNS/-/-/saved/searches')
-
-
-      // we need to feed this data into the database
-        connectToDatabase()
-        .then(() => {
+        try {
+            let tempRes = await getHandler('/servicesNS/-/-/saved/searches')
+        
             if (tempRes.entry && tempRes.entry.length > 0) {
-                Reports.insertMany(tempRes.entry.map((element) => {
+                let reportArr = tempRes.entry.map((element) => {
                     return {
                         name: element.name,
                         app: element.acl.app,
                         author: element.author,
                         owner: element.acl.owner,
-                        modifiable :element.acl.modifiable,
-                        sharing:element.acl.sharing,
+                        modifiable: element.acl.modifiable,
+                        sharing: element.acl.sharing,
                         visible: element.content["is_visible"],
                         scheduled: element.content["is_scheduled"],
                         scheduledAs: element.content["schedule_as"],
                         schedulePriority: element.content["schedule_priority"],
-                        scheduleWindow:element.content["schedule_window"],
+                        scheduleWindow: element.content["schedule_window"],
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
+                try {
+                    await connectToDatabase();
+                    try {
+                        await Reports.insertMany(reportArr)
+                        console.log("Inserted into table");
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                message: 'This is the list of SavedSearches',
+                                input: event,
+                                data: reportArr,
+                                statusCode: 200
+                            }
+                            ),
+                        };
+                    } catch (err) {
+                        throw err;
+                        
+                    }
+                } catch (err) {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: "Cannot create data in table Reports. Database connection failed",
+                            status: 500,
+                            error: err
+                        })
+                    }
+                }
             } else {
-                console.log("zero length array in entry");
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({
+                        statusCode: 404,
+                        message: "No data for requested resource"
+                    })
+                }
             }
-        }).catch((err) => {
+        }
+        catch (err) {
+            console.log("Internal server error:::error in getting SavedSearches ", err);
             return {
                 statusCode: 500,
-                body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
-                })
+                body:
+                    JSON.stringify({
+                        statusCode: 500,
+                        message: "Internal server error occured while getting SavedSearches."
+                    })
             }
-            // throw err;
-        })
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify(
-          {
-            message: 'This is the list of SavedSearches',
-            input: event,
-            data: tempRes,
-            statusCode: 200
-          },
-        ),
-      };
-    } catch (err){
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "Error in fetching details from the server",
-          statusCode:500
-        })
         }
-    }
-    }
-    catch (err) {
-        console.log("Internal server error:::error in getting SavedSearches ", err);
+    } catch (err) {
+        // throw err;
         return {
-        statusCode: 500,
-        body:
-            JSON.stringify({
-            statusCode:500,
-            message:"Internal server error occured while getting SavedSearches."
-        })
+            statusCode: 500,
+            body:JSON.stringify({
+                statusCode: 500,
+                message: "Internal server error occured while getting SavedSearches."
+            })
         }
     }
 }
@@ -510,50 +528,57 @@ module.exports.getDashboards = async (event, context, callback) => {
         try {
             let tempRes = await getHandler('/servicesNS/-/-/data/ui/views')
             // we need to feed this data into the database
-            connectToDatabase()
-            .then(() => {
             if (tempRes.entry && tempRes.entry.length > 0) {
-                Dashboards.insertMany(tempRes.entry.map((element) => {
+                let dashboardArr = tempRes.entry.map((element) => {
                     return {
                         name: element.content.label,
-                        modifiable :element.acl.modifiable,
+                        modifiable: element.acl.modifiable,
                         folderName: element.name,
                         removable: element.acl.removable,
-                        visible: element.content.visible,
+                        visible: element.content.isVisible,
                         rootNode: element.content.rootNode,
-                        sharing: element.sharing,
+                        sharing: element.acl.sharing,
                         status: element.content.disabled ? "Disabled" : "Enabled",
                     }
-                })).then(() => {
-                    console.log("Inserted into table");
-                    
-                }).catch((err) => {
-                    throw err;
                 })
+
+                try {
+                    await connectToDatabase();
+                    try {
+                        await Dashboards.insertMany(dashboardArr)
+                        console.log("Inserted into table");
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                message: 'This is the list of dashboards',
+                                input: event,
+                                data: dashboardArr,
+                                statusCode: 200
+                            }),
+                        };
+                    } catch (err) {
+                        throw err;
+                    }
+
+                } catch(err) {
+                     return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: "Cannot create data in table Dashboard",
+                            status: 500,
+                            error:err
+                        })
+                    }
+                }
             } else {
-                console.log("zero length array in entry");
-            }
-            }).catch((err) => {
                 return {
-                    statusCode: 500,
+                    statusCode: 404,
                     body: JSON.stringify({
-                        message: "Cannot create data in table AlertActions",
-                        status: 500,
-                        error:err
+                        message: "Data not available for the requested resource",
+                        statusCode:404
                     })
                 }
-                // throw err;
-            })
-
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: 'This is the list of dashboards',
-                    input: event,
-                    data: tempRes,
-                    statusCode: 200
-                }),
-            };
+            }
         } catch (err){
             return {
                 statusCode: 500,
@@ -563,7 +588,6 @@ module.exports.getDashboards = async (event, context, callback) => {
                 })
             }
         }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting Dashboards ", err);
@@ -582,13 +606,8 @@ module.exports.getApps = async (event) => {
     try {
         try {
         let tempRes = await getHandler('/services/apps/local')
-
-
-        // we need to feed this data into the database
-        connectToDatabase()
-        .then(() => {
         if (tempRes.entry && tempRes.entry.length > 0) {
-            Apps.insertMany(tempRes.entry.map((element) => {
+            let appsArr = tempRes.entry.map((element) => {
                 return {
                     name: element.content.name,
                     app: element.acl.app,
@@ -604,46 +623,48 @@ module.exports.getApps = async (event) => {
                     description: element.content.description,
                     status: element.content.disabled ? "Disabled" : "Enabled",
                 }
-            })).then(() => {
-                console.log("Inserted into table");
-                
-            }).catch((err) => {
-                throw err;
             })
-        } else {
-            console.log("zero length array in entry");
-        }
-        }).catch((err) => {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: "Cannot create data in table AlertActions",
-                    status: 500,
-                    error:err
-                })
-            }
-            // throw err;
-        })
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'This is the list of apps',
-                input: event,
-                data: tempRes,
-                statusCode: 200
-            }),
+            try {
+                await connectToDatabase()
+                try {
+                    await Apps.insertMany(appsArr)
+                    
+                console.log("Inserted into table");
+                    return {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                        message: 'This is the list of apps',
+                        input: event,
+                        data: appsArr,
+                        statusCode: 200
+                    }),
+                }
+                } catch (err) {
+                    throw err;
+                    
+                }
+            } catch (err) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        message: "Cannot create data in table Apps",
+                        status: 500,
+                        error:err
+                    })
+                }
+            }} else {
+                console.log("zero length array in entry");
             }
         }
         catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: "Error in fetching details from the server",
-                statusCode:500
-            })
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: "Error in fetching details from the server",
+                    statusCode:500
+                })
+            }
         }
-        }
-
     }
     catch (err) {
         console.log("Internal server error:::error in getting Apps ", err);

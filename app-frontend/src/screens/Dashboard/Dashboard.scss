@@ -1,0 +1,88 @@
+.splunk-dashboard {
+  background-color: grey;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: left;
+  background-image: url("../../img/dashboard-background.jpg");
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover;
+  .dashboard-header {
+    display: flex;
+    gap: 30px;
+
+    img {
+      height: 120px;
+      width: 16%;
+    }
+    .main-heading {
+      text-align: center;
+      font-size: 40px;
+      line-height: 120px;
+    }
+  }
+  .dashboard-btn-container {
+    display: flex;
+    gap: 20px;
+    width: 70%;
+    position: relative;
+    left: 4%;
+    .active-know {
+      background-color: aliceblue;
+      color: black;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .knowledge-nav {
+      background-color: #ba92fc;
+      color: beige;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  }
+  .dashboard-objects-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 50px;
+    width: 80%;
+    border-radius: 30px;
+    position: relative;
+    left: 4%;
+    border: 2px solid black;
+    .db-ob-apps {
+      background-color: #ffd0d0;
+      border: 3px solid black;
+      position: relative;
+      width: 20%;
+      padding: 10px;
+      border-radius: 10px;
+      height: 100px;
+      text-align: center;
+    }
+    .db-objects {
+      //   border: 2px solid black;
+      border-radius: 10px;
+      display: grid;
+      row-gap: 20px;
+      column-gap: 20px;
+      width: 86%;
+      padding: 20px;
+      background: rgb(235 227 227 / 44%);
+      grid-template-columns: repeat(4, 1fr);
+      .db-object {
+        border: 2px solid black;
+        height: 100px;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+      }
+    }
+  }
+}
