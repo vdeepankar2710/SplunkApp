@@ -1,0 +1,37 @@
+.popup-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: -20%;
+  left: 15%;
+  width: 60vw;
+  height: 95%;
+  background-color: rgb(241 255 215);
+  border-radius: 20px;
+  .cross-btn {
+    justify-items: left;
+    img {
+      height: 30px;
+      width: 30px;
+    }
+  }
+  .display-area {
+    padding: 5px 10px;
+    div {
+      display: flex;
+      gap: 30px;
+      //   padding: 10px;
+      //   justify-content: space-between;
+      .first-span {
+        width: 300px;
+      }
+      .second-span {
+        max-width: 30px;
+      }
+      .third-span {
+        width: 90%;
+      }
+    }
+  }
+}

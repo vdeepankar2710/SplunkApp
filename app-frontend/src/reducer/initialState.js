@@ -1,5 +1,5 @@
 export let initialState = {
-    alertsAction: [],
+    alertAction: [],
     apps: [],
     dashboards: [],
     savedSearches: [],

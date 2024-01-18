@@ -13,12 +13,13 @@ import {
     savedSearchesAction,
     dashboardsAction,
     appsAction,
-    alertsAction
+    alertAction
 } from '../../actions/actions';
 import { connect } from 'react-redux';
 import MainContainer from '../../containers/MainContainer';
 
 function Dashboard(props) {
+    // console.log('props in Main container',props);
 
     const [appsLoading, setAppsLoading] = useState(true);
     const [indexesLoading, setIndexesLoading] = useState(true);
@@ -48,7 +49,7 @@ function Dashboard(props) {
             if (res.data && res.data.data) {
                 console.log("res in alert if", res.data.data);
                 setAlertActionsCount(res.data.data.length);
-                props.alertsAction(res.data.data)    
+                props.alertAction(res.data.data)    
             }
         }).catch((err) => {
             throw err
@@ -153,7 +154,7 @@ function Dashboard(props) {
                     <div className='db-objects'>
                         <div className='db-object'>{dashboardsLoading ? <Loader /> : `${dashboardsCount} Dashboards`}</div>
                         <div className='db-object'>{ savedSearchesLoading ? <Loader/>:`${savedSearchesCount} Saved Searches`}</div>
-                        <div className='db-object'>{alertActionsLoading ? <Loader/>:`${alertActionsCount}  Alerts Actions`} </div>
+                        <div className='db-object'>{alertActionsLoading ? <Loader/>:`${alertActionsCount}  Alert Actions`} </div>
                         <div className='db-object'>{ lookupsLoading ? <Loader/>:`${lookupsCount} Lookups`}</div>
                         <div className='db-object'>{ fieldsLoading ? <Loader/>:`${fieldsCount} Fields`} </div>
                         <div className='db-object'>{ indexesLoading ? <Loader/>:`${indexesCount} Custom Indexes`}</div>
@@ -161,29 +162,32 @@ function Dashboard(props) {
                     </div>
                 </div>
                 :
-                <MainContainer knowledgeBtnActive={knowledgeBtnActive}
+                <MainContainer
+                    knowledgeBtnActive={knowledgeBtnActive}
+
                 />
             }
         </div>
     )
 }
 
-const mapStateToProps = (state) => {
-   return {
-        alertsActions:state.alertsActions ,
-        apps: state.apps,
-        dashboards: state.dashboards,
-        savedSearches: state.savedSearches,
-        lookups: state.lookups,
-        fields: state.fields,
-        indexes: state.indexes,
-        sourcetypes:state.sourcetypes
-   };
-};
 
+// const mapStateToProps = (state) => {
+//     console.log("state",state)
+//    return {
+//         alertsActions:state.alertsActions ,
+//         apps: state.apps,
+//         dashboards: state.dashboards,
+//         savedSearches: state.savedSearches,
+//         lookups: state.lookups,
+//         fields: state.fields,
+//         indexes: state.indexes,
+//         sourcetypes:state.sourcetypes
+//    };
+// };
 const mapDispatchToProps = (dispatch) => {
    return {
-        alertsAction: (data) => dispatch(alertsAction(data)),
+        alertAction: (data) => dispatch(alertAction(data)),
         appsAction: (data) => dispatch(appsAction(data)),
         dashboardsAction: (data) => dispatch(dashboardsAction(data)),
         savedSearchesAction: (data) => dispatch(savedSearchesAction(data)),
@@ -194,4 +198,4 @@ const mapDispatchToProps = (dispatch) => {
       
    };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default connect(null, mapDispatchToProps)(Dashboard);

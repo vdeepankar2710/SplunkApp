@@ -1,8 +1,8 @@
 import { TYPES } from "./actionTypes"
 
-export function alertsAction(payload) {
+export function alertAction(payload) {
    return {
-       type: TYPES.ALERT_ACTIONS,
+       type: TYPES.ALERT_ACTION,
        payload: payload
    }
 }

@@ -3,13 +3,13 @@ import { initialState } from "./initialState"
 
 const reducer = (state = initialState, action) => {
    switch (action.type) {
-       case TYPES.ALERT_ACTIONS: {
+       case TYPES.ALERT_ACTION: {
          let payload = action.payload
         //    console.log("payload type", payload);
            if (payload.length === 0) return state;
            return {
                ...state,
-               alertsAction: action.payload
+               alertAction: action.payload
            }
        }
        case TYPES.APPS: {
