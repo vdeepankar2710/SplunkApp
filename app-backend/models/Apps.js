@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const typesenseClient = require('../typesenseClient');
 const AppSchema = new mongoose.Schema({  
     name: String,
     folderName: String,
@@ -14,7 +15,8 @@ const AppSchema = new mongoose.Schema({
     canChangePerms: Boolean,
     canList: Boolean,
     canShareApp: Boolean,
-    
-
 });
+
+
+
 module.exports = mongoose.model('Apps', AppSchema);

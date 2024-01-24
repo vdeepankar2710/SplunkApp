@@ -11,4 +11,5 @@ const AlertSchema = new mongoose.Schema({
     trackAlert: Boolean,
     owner:String,
 });
+
 module.exports = mongoose.model('Alerts', AlertSchema);
